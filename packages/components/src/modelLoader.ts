@@ -3,7 +3,7 @@ import axios from 'axios'
 import * as fs from 'fs'
 import * as path from 'path'
 
-const MASTER_MODEL_LIST = 'https://raw.githubusercontent.com/FlowiseAI/Flowise/main/packages/components/models.json'
+const MASTER_MODEL_LIST = '/usr/src/packages/components/models.json'
 
 export enum MODEL_TYPE {
     CHAT = 'chat',
@@ -37,6 +37,7 @@ const getModelConfig = async (category: MODEL_TYPE, name: string) => {
     if (!modelFile) {
         throw new Error('MODEL_LIST_CONFIG_JSON not set')
     }
+
     if (isValidUrl(modelFile)) {
         try {
             const resp = await axios.get(modelFile)

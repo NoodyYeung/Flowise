@@ -1,0 +1,16 @@
+version: '3.1'
+
+services:
+    flowise:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: always
+        ports:
+            - '${PORT}:${PORT}'
+        volumes:
+            - '/d/.flowise:/root/.flowise'
+            - '/d/Projects/Flowise/packages/components/src:/usr/src/packages/components/src'
+            - '/d/Projects/Flowise/packages/components/credentials:/usr/src/packages/components/credentials'
+            - '/d/Projects/Flowise/packages/components/nodes:/usr/src/packages/components/nodes'
+        # entrypoint: /bin/sh -c "sleep 3; flowise start"

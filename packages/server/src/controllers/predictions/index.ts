@@ -67,7 +67,7 @@ const createPrediction = async (req: Request, res: Response, next: NextFunction)
                     res.setHeader('Connection', 'keep-alive')
                     res.setHeader('X-Accel-Buffering', 'no') //nginx config: https://serverfault.com/a/801629
                     res.flushHeaders()
-
+                    console.log('index.ts', 70)
                     const apiResponse = await predictionsServices.buildChatflow(req)
                     sseStreamer.streamMetadataEvent(apiResponse.chatId, apiResponse)
                 } catch (error) {
@@ -79,6 +79,7 @@ const createPrediction = async (req: Request, res: Response, next: NextFunction)
                     sseStreamer.removeClient(chatId)
                 }
             } else {
+                console.log('index.ts', 82)
                 const apiResponse = await predictionsServices.buildChatflow(req)
                 return res.json(apiResponse)
             }

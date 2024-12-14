@@ -1,0 +1,15 @@
+{
+    "name": "Flask-Vue Dev Container",
+    "dockerComposeFile": ["../docker-compose.yml"],
+    "service": "flowise",
+    "workspaceFolder": "/usr/src",
+    "extensions": ["ms-python.python", "dbaeumer.vscode-eslint", "esbenp.prettier-vscode", "eamodio.gitlens"],
+    "settings": {
+        "python.pythonPath": "/usr/local/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.flake8Enabled": true,
+        "python.formatting.provider": "black"
+    },
+    "remoteEnv": {},
+    "shutdownAction": "stopCompose"
+}

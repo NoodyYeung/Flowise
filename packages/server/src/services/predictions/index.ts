@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 import { utilBuildChatflow } from '../../utils/buildChatflow'
 import { InternalFlowiseError } from '../../errors/internalFlowiseError'
 import { getErrorMessage } from '../../errors/utils'
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 const buildChatflow = async (fullRequest: Request) => {
     try {

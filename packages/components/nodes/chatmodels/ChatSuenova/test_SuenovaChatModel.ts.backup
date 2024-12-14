@@ -1,0 +1,54 @@
+// test/suenova_chat_model_test.ts
+
+import { SuenovaChatModel } from "./SuenovaChatModel";
+import { ICommonObject, INode, INodeData, INodeParams, IServerSideEventStreamer, PromptTemplate } from '../../../src/Interface'
+import { SuenovaApiClient } from "../../llms/Suenova/SuenovaApiClient";
+
+async function testSuenovaChatModel() {
+    try {
+        // Mock node input data
+        const nodeData: INodeData = {
+            inputs: {
+                modelName: 'Qwen2-VL-7B-Instruct',
+                temperature: 0.7,
+                maxTokens: 100,
+                topP: 0.9,
+                frequencyPenalty: 0.2,
+                presencePenalty: 0.1,
+                stopSequence: '###',
+                timeout: 30000,
+                basePath: 'https://113.31.112.216:8001',
+                allowImageUploads: false,
+                imageResolution: 'low',
+                streaming: false,
+            }
+        };
+
+        const options: ICommonObject = {
+            credentials: {
+                suenovaApiKey: 'your-suenova-api-key', // Replace with a real API key
+            },
+        };
+
+        // Initialize the Suenova Chat Model
+        const suenovaApiClient =new SuenovaApiClient({ 
+            basePath: "https://113.31.112.216:8001",
+            apiKey: "monitorpoc"
+        }, 'Qwen2-VL-7B-Instruct'); // Replace with a real deployment name
+
+        const suenovaChatNode = new SuenovaChatModel(suenovaApiClient, {});
+
+        // Test a sample message
+        const testPrompt = "Explain the theory of relativity in simple terms.";
+        const response = await suenovaChatNode._call(testPrompt, {});
+
+        console.log('Suenova Chat Model Response:');
+        console.log(response);
+
+    } catch (error) {
+        console.error('Error testing Suenova Chat Model:', error);
+    }
+}
+
+// Run the test
+testSuenovaChatModel();

@@ -1,3 +1,4 @@
+
 # Build local monorepo image
 # docker build --no-cache -t  flowise .
 
@@ -32,3 +33,5 @@ RUN pnpm build
 EXPOSE 3000
 
 CMD [ "pnpm", "start" ]
+# Run bash
+# CMD [ "/bin/sh" ]

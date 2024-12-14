@@ -23,6 +23,8 @@ import { AgentExecutor, ToolCallingAgentOutputParser } from '../../../src/agents
 import { Moderation, checkInputs, streamResponse } from '../../moderation/Moderation'
 import { formatResponse } from '../../outputparsers/OutputParserHelpers'
 import { addImagesToMessages, llmSupportsVision } from '../../../src/multiModalUtils'
+// import https from 'https'
+// https.globalAgent.options.rejectUnauthorized = false
 
 class ToolAgent_Agents implements INode {
     label: string
@@ -111,12 +113,15 @@ class ToolAgent_Agents implements INode {
         const shouldStreamResponse = options.shouldStreamResponse
         const sseStreamer: IServerSideEventStreamer = options.sseStreamer as IServerSideEventStreamer
         const chatId = options.chatId
-
+        console.log('ToolAgent_Agents', 114)
         if (moderations && moderations.length > 0) {
             try {
                 // Use the output of the moderation chain as input for the OpenAI Function Agent
+                console.log('ToolAgent_Agents', 118)
+
                 input = await checkInputs(moderations, input)
             } catch (e) {
+                console.log('ToolAgent_Agents', 122)
                 await new Promise((resolve) => setTimeout(resolve, 500))
                 if (shouldStreamResponse) {
                     streamResponse(sseStreamer, chatId, e.message)
@@ -124,6 +129,7 @@ class ToolAgent_Agents implements INode {
                 return formatResponse(e.message)
             }
         }
+        console.log('ToolAgent_Agents', 130)
 
         const executor = await prepareAgent(nodeData, options, { sessionId: this.sessionId, chatId: options.chatId, input })
 
@@ -134,6 +140,7 @@ class ToolAgent_Agents implements INode {
         let sourceDocuments: ICommonObject[] = []
         let usedTools: IUsedTool[] = []
         let artifacts = []
+        console.log('ToolAgent_Agents', 141)
 
         if (shouldStreamResponse) {
             const handler = new CustomChainHandler(sseStreamer, chatId)
@@ -168,10 +175,24 @@ class ToolAgent_Agents implements INode {
                 }
             }
         } else {
-            res = await executor.invoke({ input }, { callbacks: [loggerHandler, ...callbacks] })
+            console.log('ToolAgent_Agents', 176)
+            console.log('ToolAgent_Agents', input)
+            console.log('ToolAgent_Agents', [loggerHandler, ...callbacks])
+            console.log('ToolAgent_Agents', executor)
+            try {
+                res = await executor.invoke({ input }, { callbacks: [loggerHandler, ...callbacks] })
+            } catch (error) {
+                console.error('Error during executor.invoke:', error)
+                if (error.response) {
+                    console.error('Status:', error.response.status)
+                    console.error('Data:', error.response.data)
+                }
+                throw error
+            }
             if (res.sourceDocuments) {
                 sourceDocuments = res.sourceDocuments
             }
+            console.log('ToolAgent_Agents', 182)
             if (res.usedTools) {
                 usedTools = res.usedTools
             }
@@ -186,6 +207,8 @@ class ToolAgent_Agents implements INode {
         } else if (typeof output === 'object') {
             output = output?.text || ''
         }
+        console.log('ToolAgent_Agents', 197)
+        console.log('ToolAgent_Agents', res)
 
         output = removeInvalidImageMarkdown(output)
 
@@ -198,6 +221,7 @@ class ToolAgent_Agents implements INode {
                 output = output.replace(match, '')
             }
         }
+        console.log('ToolAgent_Agents', 210)
 
         await memory.addChatMessages(
             [
@@ -214,6 +238,7 @@ class ToolAgent_Agents implements INode {
         )
 
         let finalRes = output
+        console.log('ToolAgent_Agents', 227)
 
         if (sourceDocuments.length || usedTools.length || artifacts.length) {
             const finalRes: ICommonObject = { text: output }
@@ -228,6 +253,7 @@ class ToolAgent_Agents implements INode {
             }
             return finalRes
         }
+        console.log('ToolAgent_Agents', 242)
 
         return finalRes
     }

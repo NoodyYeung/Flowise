@@ -1,0 +1,5 @@
+docker build --no-cache -t flowise .
+docker build -t flowise .
+docker run -d    -v "/d/.flowise:/root/.flowise"    -v "/d/Projects/Flowise/packages/components/src:/usr/src/packages/components/src"  -v "/d/Projects/Flowise/packages/components/credentials:/usr/src/packages/components/credentials" -v  "/d/Projects/Flowise/packages/components/nodes:/usr/src/packages/components/nodes" -v "/d/Projects/Flowise/packages/server/src/services:/usr/src/packages/server/src/services" -v "/d/Projects/Flowise/packages/server/src/utils:/usr/src/packages/server/src/utils"  -p 3000:3000    --name flowise flowise tail -f /dev/null
+
+docker run -d --name flowise -p 3000:3000 flowise

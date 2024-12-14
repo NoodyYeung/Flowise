@@ -117,9 +117,10 @@ export const getBaseClasses = (targetClass: any) => {
     const baseClasses: string[] = []
     const skipClassNames = ['BaseLangChain', 'Serializable']
 
+    console.log('targetClass', targetClass)
     if (targetClass instanceof Function) {
         let baseClass = targetClass
-
+        console.log('baseClass', baseClass)
         while (baseClass) {
             const newBaseClass = Object.getPrototypeOf(baseClass)
             if (newBaseClass && newBaseClass !== Object && newBaseClass.name) {

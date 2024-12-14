@@ -102,7 +102,7 @@ const getSingleNodeAsyncOptions = async (nodeName: string, requestBody: any): Pr
 
                 return dbResponse
             } catch (error) {
-                return []
+                return [`${error}`]
             }
         } else {
             throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Node ${nodeName} not found`)

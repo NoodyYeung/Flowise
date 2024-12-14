@@ -36,5 +36,6 @@ services:
         ports:
             - '${PORT}:${PORT}'
         volumes:
-            - ~/.flowise:/root/.flowise
+            - '/d/.flowise:/root/.flowise'
+            - '/d/Projects/Flowise:/usr/src'
         entrypoint: /bin/sh -c "sleep 3; flowise start"

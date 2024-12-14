@@ -65,8 +65,10 @@ import { Variable } from '../database/entities/Variable'
  * @param {boolean} isInternal
  */
 export const utilBuildChatflow = async (req: Request, isInternal: boolean = false): Promise<any> => {
+    console.log('buidlChatflow.ts', 68)
     const appServer = getRunningExpressApp()
     try {
+        console.log('buidlChatflow.ts', 70)
         const chatflowid = req.params.id
 
         const httpProtocol = req.get('x-forwarded-proto') || req.protocol
@@ -89,7 +91,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
                 throw new InternalFlowiseError(StatusCodes.UNAUTHORIZED, `Unauthorized`)
             }
         }
-
+        console.log('buidlChatflow.ts', 94)
         let fileUploads: IFileUpload[] = []
         let uploadedFilesContent = ''
         if (incomingInput.uploads) {
@@ -108,7 +110,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
                     // Omit upload.data since we don't store the content in database
                     fileUploads[i] = omit(upload, ['data'])
                 }
-
+                console.log('buidlChatflow.ts', 114)
                 if (upload.type === 'url' && upload.data) {
                     const filename = upload.name
                     const urlData = upload.data
@@ -130,6 +132,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
                             }
                         }
                     }
+                    console.log('buidlChatflow.ts', 134)
                     if (speechToTextConfig) {
                         const options: ICommonObject = {
                             chatId,
@@ -144,7 +147,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
                         }
                     }
                 }
-
+                console.log('buidlChatflow.ts', 147)
                 if (upload.type === 'file:full' && upload.data) {
                     upload.type = 'stored-file:full'
                     // Omit upload.data since we don't store the content in database
@@ -172,7 +175,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
                 const fileExtension = path.extname(file.originalname)
 
                 const fileInputFieldFromExt = mapExtToInputField(fileExtension)
-
+                console.log('buidlChatflow.ts', 177)
                 let fileInputField = 'txtFile'
 
                 if (fileInputFieldFromExt !== 'txtFile') {
@@ -194,7 +197,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
                 } else {
                     overrideConfig[fileInputField] = storagePath
                 }
-
+                console.log('buidlChatflow.ts', 198)
                 fs.unlinkSync(file.path)
             }
             if (overrideConfig.vars && typeof overrideConfig.vars === 'string') {
@@ -208,7 +211,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
                 incomingInput.chatId = req.body.chatId
             }
         }
-
+        console.log('buidlChatflow.ts', 210)
         /*** Get chatflows and prepare data  ***/
         const flowData = chatflow.flowData
         const parsedFlowData: IReactFlowObject = JSON.parse(flowData)
@@ -221,7 +224,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
         const memoryNode = findMemoryNode(nodes, edges)
         const memoryType = memoryNode?.data?.label
         let sessionId = getMemorySessionId(memoryNode, incomingInput, chatId, isInternal)
-
+        console.log('buidlChatflow.ts', 224)
         /*** Get Ending Node with Directed Graph  ***/
         const { graph, nodeDependencies } = constructGraphs(nodes, edges)
         const directedGraph = graph
@@ -246,7 +249,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
                 uploadedFilesContent
             )
         }
-
+        console.log('buidlChatflow.ts', 242)
         // Get prepend messages
         const prependMessages = incomingInput.history
 
@@ -261,6 +264,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
          * - Flow doesn't start with/contain nodes that depend on incomingInput.question
          ***/
         const isFlowReusable = () => {
+            console.log('buidlChatflow.ts', 257)
             return (
                 process.env.DISABLE_CHATFLOW_REUSE !== 'true' &&
                 Object.prototype.hasOwnProperty.call(appServer.chatflowPool.activeChatflows, chatflowid) &&
@@ -282,6 +286,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
             logger.debug(
                 `[server]: Reuse existing chatflow ${chatflowid} with ending node ${nodeToExecuteData.label} (${nodeToExecuteData.id})`
             )
+            console.log('buidlChatflow.ts', 284)
         } else {
             const isCustomFunctionEndingNode = endingNodes.some((node) => node.data?.outputs?.output === 'EndingNode')
 
@@ -315,7 +320,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
             // When {{chat_history}} is used in Format Prompt Value, fetch the chat conversations from memory node
             for (const endingNode of endingNodes) {
                 const endingNodeData = endingNode.data
-
+                console.log('buidlChatflow.ts', 318)
                 if (!endingNodeData.inputs?.memory) continue
 
                 const memoryNodeId = endingNodeData.inputs?.memory.split('.')[0].replace('{{', '')
@@ -355,7 +360,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
             const { nodeOverrides, variableOverrides, apiOverrideStatus } = getAPIOverrideConfig(chatflow)
 
             logger.debug(`[server]: Start building chatflow ${chatflowid}`)
-
+            console.log('buidlChatflow.ts', 362)
             /*** BFS to traverse from Starting Nodes to Ending Node ***/
             const reactFlowNodes = await buildFlow({
                 startingNodeIds,
@@ -382,7 +387,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
                 uploads: incomingInput.uploads,
                 baseURL
             })
-
+            console.log('buidlChatflow.ts', 390)
             // Show output of setVariable nodes in the response
             for (const node of reactFlowNodes) {
                 if (
@@ -394,7 +399,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
                     flowVariables[variableKey] = outputResult
                 }
             }
-
+            console.log('buidlChatflow.ts', 402)
             const nodeToExecute =
                 endingNodeIds.length === 1
                     ? reactFlowNodes.find((node: IReactFlowNode) => endingNodeIds[0] === node.id)
@@ -402,7 +407,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
             if (!nodeToExecute) {
                 throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Node not found`)
             }
-
+            console.log('buidlChatflow.ts', 410)
             // Only override the config if its status is true
             if (incomingInput.overrideConfig && apiOverrideStatus) {
                 nodeToExecute.data = replaceInputsWithConfig(
@@ -412,7 +417,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
                     variableOverrides
                 )
             }
-
+            console.log('buidlChatflow.ts', 420)
             const flowData: ICommonObject = {
                 chatflowid,
                 chatId,
@@ -421,7 +426,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
                 chatHistory,
                 ...incomingInput.overrideConfig
             }
-
+            console.log('buidlChatflow.ts', 429)
             const reactFlowNodeData: INodeData = await resolveVariables(
                 appServer.AppDataSource,
                 nodeToExecute.data,
@@ -434,19 +439,21 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
                 variableOverrides
             )
             nodeToExecuteData = reactFlowNodeData
-
+            console.log('buidlChatflow.ts', 442)
             appServer.chatflowPool.add(chatflowid, nodeToExecuteData, startingNodes, incomingInput?.overrideConfig, chatId)
         }
 
         logger.debug(`[server]: Running ${nodeToExecuteData.label} (${nodeToExecuteData.id})`)
-
+        console.log(`[server]: Running ${nodeToExecuteData.label} (${nodeToExecuteData.id})`)
         const nodeInstanceFilePath = appServer.nodesPool.componentNodes[nodeToExecuteData.name].filePath as string
+        console.log('buidlChatflow.ts', 451)
         const nodeModule = await import(nodeInstanceFilePath)
+        console.log('buidlChatflow.ts nodeInstanceFilePath', nodeInstanceFilePath)
         const nodeInstance = new nodeModule.nodeClass({ sessionId })
-
+        console.log('buidlChatflow.ts', 455)
         isStreamValid = (req.body.streaming === 'true' || req.body.streaming === true) && isStreamValid
         const finalQuestion = uploadedFilesContent ? `${uploadedFilesContent}\n\n${incomingInput.question}` : incomingInput.question
-
+        console.log('buidlChatflow.ts', 459)
         const runParams = {
             chatId,
             chatflowid,
@@ -458,19 +465,23 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
             uploads: incomingInput.uploads,
             prependMessages
         }
-
+        console.log('buidlChatflow.ts', 468)
+        console.log('buidlChatflow.ts', {
+            ...runParams,
+            ...(isStreamValid && { sseStreamer: appServer.sseStreamer, shouldStreamResponse: true })
+        })
         let result = await nodeInstance.run(nodeToExecuteData, finalQuestion, {
             ...runParams,
             ...(isStreamValid && { sseStreamer: appServer.sseStreamer, shouldStreamResponse: true })
         })
-
+        console.log('buidlChatflow.ts', 473)
         result = typeof result === 'string' ? { text: result } : result
 
         // Retrieve threadId from assistant if exists
         if (typeof result === 'object' && result.assistant) {
             sessionId = result.assistant.threadId
         }
-
+        console.log('buidlChatflow.ts', 481)
         const userMessage: Omit<IChatMessage, 'id'> = {
             role: 'userMessage',
             content: incomingInput.question,
@@ -484,12 +495,12 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
             leadEmail: incomingInput.leadEmail
         }
         await utilAddChatMessage(userMessage)
-
+        console.log('buidlChatflow.ts', 494)
         let resultText = ''
         if (result.text) resultText = result.text
         else if (result.json) resultText = '```json\n' + JSON.stringify(result.json, null, 2)
         else resultText = JSON.stringify(result, null, 2)
-
+        console.log('buidlChatflow.ts', 500)
         const apiMessage: Omit<IChatMessage, 'createdDate'> = {
             id: apiMessageId,
             role: 'apiMessage',

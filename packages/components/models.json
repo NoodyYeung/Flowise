@@ -1,6 +1,17 @@
 {
     "chat": [
         {
+            "name": "suenovaChat",
+            "models": [
+                {
+                    "label": "Qwen2-VL-7B-Instruct",
+                    "name": "Qwen2-VL-7B-Instruct",
+                    "description": "Qwen2-VL-7B-Instruct"
+                }
+            ]
+        },
+
+        {
             "name": "awsChatBedrock",
             "models": [
                 {
@@ -830,6 +841,15 @@
         }
     ],
     "llm": [
+        {
+            "name": "suenova",
+            "models": [
+                {
+                    "label": "Qwen2-VL-7B-Instruct",
+                    "name": "Qwen2-VL-7B-Instruct"
+                }
+            ]
+        },
         {
             "name": "awsBedrock",
             "models": [
