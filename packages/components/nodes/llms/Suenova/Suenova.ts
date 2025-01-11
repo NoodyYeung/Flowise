@@ -6,8 +6,9 @@ import { getBaseClasses, getCredentialData, getCredentialParam } from '../../../
 import { MODEL_TYPE } from '../../../src/modelLoader'
 import { SuenovaApiClient } from './SuenovaApiClient'
 import { getModels } from '../../../src/modelLoader'
+import { SuenovaLLM } from './SuenovaLLM'
 
-class Suenova_LLMs implements INode {
+class Suenova implements INode {
     label: string
     name: string
     version: number
@@ -27,7 +28,7 @@ class Suenova_LLMs implements INode {
         this.icon = 'suenova.svg' // Ensure you have this icon in your assets
         this.category = 'LLMs'
         this.description = 'Wrapper around the Suenova on-premise large language model API'
-        this.baseClasses = [this.type, ...getBaseClasses(SuenovaApiClient)]
+        this.baseClasses = [this.type, ...getBaseClasses(SuenovaLLM)]
         this.credential = {
             label: 'Connect Credential',
             name: 'credential',
@@ -46,7 +47,7 @@ class Suenova_LLMs implements INode {
                 name: 'modelName',
                 type: 'asyncOptions',
                 loadMethod: 'listModels',
-                default: 'Qwen2-VL-7B-Instruct' // Default to your deployment name
+                default: 'Qwen2.5-7B-Instruct' // Default to your deployment name
             },
             {
                 label: 'Temperature',
@@ -190,34 +191,10 @@ class Suenova_LLMs implements INode {
         if (cache) llmParams.cache = cache
 
         // Define the generate function
-        const generate = async (prompt: string): Promise<string> => {
-            const params: any = {
-                prompt,
-                temperature: llmParams.temperature,
-                maxTokens: llmParams.maxTokens,
-                topP: llmParams.topP,
-                frequencyPenalty: llmParams.frequencyPenalty,
-                presencePenalty: llmParams.presencePenalty,
-                bestOf: llmParams.bestOf,
-                batchSize: llmParams.batchSize
-                // Add other parameters as needed
-            }
-
-            const response = await client.generateText(params)
-            if (response.success && response.content) {
-                // Adjust this based on your API's response structure
-                return response.content.choices?.[0]?.message?.content || ''
-            } else {
-                throw new Error('Failed to generate text from Suenova API.')
-            }
-        }
-
+        const model = new SuenovaLLM(client, llmParams)
         // Return an object that conforms to LangChain's expected interface
-        return {
-            generate
-            // Implement other necessary methods if required
-        }
+        return model
     }
 }
 
-module.exports = { nodeClass: Suenova_LLMs }
+module.exports = { nodeClass: Suenova }

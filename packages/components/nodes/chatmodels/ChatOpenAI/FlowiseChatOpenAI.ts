@@ -35,4 +35,10 @@ export class ChatOpenAI extends LangchainChatOpenAI implements IVisionChatModal 
     setVisionModel(): void {
         // pass
     }
+
+    // override bindTools(tools: (StructuredToolInterface | Record<string, unknown>)[], kwargs?: Partial<ICommonObject>) {
+    //     console.log('Binding tools', tools)
+    //     //@ts-ignore
+    //     return this.bind({ tools: tools, ...kwargs })
+    // }
 }

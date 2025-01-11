@@ -1,0 +1,42 @@
+curl -k -X POST https://113.31.112.216:8001/qwen2vl/v1/chat/completions \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer monitorpoc" \
+-d '{
+    "messages": [
+        { "role": "user", "content": "You are a helpful assistant." },
+        { "role": "user", "content": "Hi" }
+    ],
+    "model":"Qwen2-VL-7B-Instruct",
+    "functions" : 
+}'
+
+curl -k -X POST https://113.31.112.216:8001/qwen27b/v1/chat/completions \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer monitorpoc" \
+-d '{
+    "messages": [
+        { "role": "user", "content": "You are a helpful assistant." },
+        { "role": "user", "content": "what is the weather today?" }
+    ],
+    "model":"Qwen2.5-7B-Instruct",
+    "tools": [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_weather",
+                "description": "Get the current weather for a city.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "city": {
+                            "type": "string",
+                            "description": "Name of the city to get the weather for."
+                        }
+                    },
+                    "required": ["city"]
+                }
+            }
+        }
+    ]
+    
+}'

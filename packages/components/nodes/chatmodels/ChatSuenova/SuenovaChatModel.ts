@@ -9,6 +9,8 @@ import { BaseMessage } from '@langchain/core/messages'
 import { SuenovaApiClient } from '../../llms/Suenova/SuenovaApiClient'
 import { ICommonObject, IVisionChatModal } from '../../../src'
 import { StructuredToolInterface } from '@langchain/core/tools'
+import { zodToJsonSchema } from 'zod-to-json-schema'
+import { isStructuredTool } from '@langchain/core/utils/function_calling'
 
 interface SuenovaChatModelParams extends BaseLanguageModelParams {
     temperature?: number
@@ -86,6 +88,30 @@ export class SuenovaChatModel extends BaseChatModel implements IVisionChatModal 
 
     override bindTools(tools: (StructuredToolInterface | Record<string, unknown>)[], kwargs?: Partial<ICommonObject>) {
         console.log('Binding tools', tools)
+        let tranformed_tools = tools.map((tool) => {
+            if (isStructuredTool(tool)) {
+                const jsonSchema = zodToJsonSchema(tool.schema)
+                console.log('tranformed_tools jsonSchema', jsonSchema)
+                const parameters: Record<string, any> = JSON.parse(JSON.stringify(jsonSchema))
+
+                return {
+                    type: 'function',
+                    function: {
+                        name: tool.name,
+                        description: tool.description,
+                        parameters: {
+                            type: parameters.type,
+                            properties: parameters.propertiesm,
+                            required: parameters.required,
+                            additionalProperties: parameters.additionalProperties
+                        }
+                    }
+                }
+            }
+        })
+        console.log('tranformed_tools', JSON.stringify(tranformed_tools))
+
+        this.client.setTools(tranformed_tools)
         //@ts-ignore
         return this.bind({ tools: tools, ...kwargs })
     }

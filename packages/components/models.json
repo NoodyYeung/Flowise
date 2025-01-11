@@ -4,9 +4,9 @@
             "name": "suenovaChat",
             "models": [
                 {
-                    "label": "Qwen2-VL-7B-Instruct",
-                    "name": "Qwen2-VL-7B-Instruct",
-                    "description": "Qwen2-VL-7B-Instruct"
+                    "label": "Qwen2.5-7B-Instruct",
+                    "name": "Qwen2.5-7B-Instruct",
+                    "description": "Qwen2.5-7B-Instruct"
                 }
             ]
         },
@@ -845,8 +845,8 @@
             "name": "suenova",
             "models": [
                 {
-                    "label": "Qwen2-VL-7B-Instruct",
-                    "name": "Qwen2-VL-7B-Instruct"
+                    "label": "Qwen2.5-7B-Instruct",
+                    "name": "Qwen2.5-7B-Instruct"
                 }
             ]
         },

@@ -18,6 +18,7 @@ import { StructuredTool } from '@langchain/core/tools'
 import { AgentExecutor, JsonOutputToolsParser, ToolCallingAgentOutputParser } from '../../../src/agents'
 import { ChatMistralAI } from '@langchain/mistralai'
 import { ChatOpenAI } from '../../chatmodels/ChatOpenAI/FlowiseChatOpenAI'
+import { SuenovaChatModel } from '../../chatmodels/ChatSuenova/SuenovaChatModel'
 import { ChatAnthropic } from '../../chatmodels/ChatAnthropic/FlowiseChatAnthropic'
 import { ChatGoogleGenerativeAI } from '../../chatmodels/ChatGoogleGenerativeAI/FlowiseChatGoogleGenerativeAI'
 import { addImagesToMessages, llmSupportsVision } from '../../../src/multiModalUtils'
@@ -242,7 +243,7 @@ class Supervisor_MultiAgents implements INode {
                             }
                         }
                     })
-            } else if (llm instanceof ChatOpenAI) {
+            } else if (llm instanceof ChatOpenAI || llm instanceof SuenovaChatModel) {
                 let prompt = ChatPromptTemplate.fromMessages([
                     ['system', systemPrompt],
                     new MessagesPlaceholder('messages'),

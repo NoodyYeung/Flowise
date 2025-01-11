@@ -28,6 +28,7 @@ interface SuenovaApiResponse {
 export class SuenovaApiClient {
     private axiosInstance: AxiosInstance
     private deploymentName: string
+    private tools: any[] = []
 
     constructor(options: SuenovaApiClientOptions, deploymentName: string) {
         const httpsAgent = new (require('https').Agent)({
@@ -56,7 +57,7 @@ export class SuenovaApiClient {
     async listModels(): Promise<string[]> {
         try {
             const response: AxiosResponse<any> = await this.axiosInstance.get('/models')
-            return response.data.models || ['Qwen2-VL-7B-Instruct']
+            return response.data.models || ['Qwen2.5-7B-Instruct']
         } catch (error: any) {
             console.error('Error fetching models:', error.message)
             return []
@@ -87,6 +88,10 @@ export class SuenovaApiClient {
         return bodyMessages
     }
 
+    setTools(tools: any[]) {
+        this.tools = tools
+    }
+
     async chat(messages: BaseMessage[]): Promise<AIMessage[]> {
         const headers = new Headers()
         headers.append('Content-Type', 'application/json')
@@ -103,17 +108,18 @@ export class SuenovaApiClient {
         const sanitizedPayload = {
             model: payload.model,
             messages: payload.messages,
-            // ...(payload.functions && payload.functions.length > 0 && { functions: payload.functions }),
-            temperature: payload.temperature || 0.7
+            temperature: payload.temperature || 0.7,
+            tools: this.tools
         }
 
-        console.log('SuenovaApiClient.ts: 105', payload)
+        console.log('SuenovaApiClient.ts: 105', body)
+        console.log('SuenovaApiClient.ts: 106', sanitizedPayload)
 
         // return await fetch(`${this.config.baseUrl}/v1/chat/completions`, requestOptions)
         //     .then((response) => response.json())
         //     .then((body) => body.messages.map((message: any) => new AIMessage(message.content)))
 
-        return this.axiosInstance.post('/qwen2vl/v1/chat/completions', sanitizedPayload).then((response) => {
+        return this.axiosInstance.post('/qwen27b/v1/chat/completions', sanitizedPayload).then((response) => {
             console.log('SuenovaApiClient.ts: 123', response)
             console.log('SuenovaApiClient.ts: 124', response.data.choices)
             return response.data.choices.map(
@@ -135,12 +141,13 @@ export class SuenovaApiClient {
         const payload = {
             model: this.deploymentName,
             messages: [{ role: 'user', content: params.prompt }],
-            temperature: params.temperature ?? 0.7
+            temperature: params.temperature ?? 0.7,
+            tools: this.tools
             // Include other parameters as needed
         }
         console.log('SuenovaApiClient.ts: 126', payload)
         try {
-            const response: AxiosResponse<any> = await this.axiosInstance.post('/qwen2vl/v1/chat/completions', payload)
+            const response: AxiosResponse<any> = await this.axiosInstance.post('/qwen27b/v1/chat/completions', payload)
             return { success: true, content: response.data }
         } catch (error: any) {
             if (error.code === 'ECONNABORTED') {

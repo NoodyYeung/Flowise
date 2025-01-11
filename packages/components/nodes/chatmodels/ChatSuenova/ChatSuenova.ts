@@ -47,7 +47,7 @@ class ChatSuenova implements INode {
                 name: 'modelName',
                 type: 'asyncOptions',
                 loadMethod: 'listModels',
-                default: 'Qwen2-VL-7B-Instruct' // Replace with your default chat model name
+                default: 'Qwen2.5-7B-Instruct' // Replace with your default chat model name
             },
             {
                 label: 'Temperature',
