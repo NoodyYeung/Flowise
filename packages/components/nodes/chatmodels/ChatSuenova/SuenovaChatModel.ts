@@ -87,26 +87,29 @@ export class SuenovaChatModel extends BaseChatModel implements IVisionChatModal 
     }
 
     override bindTools(tools: (StructuredToolInterface | Record<string, unknown>)[], kwargs?: Partial<ICommonObject>) {
-        console.log('Binding tools', tools)
+        console.log('Binding tools', JSON.stringify(tools))
         let tranformed_tools = tools.map((tool) => {
             if (isStructuredTool(tool)) {
                 const jsonSchema = zodToJsonSchema(tool.schema)
                 console.log('tranformed_tools jsonSchema', jsonSchema)
                 const parameters: Record<string, any> = JSON.parse(JSON.stringify(jsonSchema))
-
-                return {
+                var output = {
                     type: 'function',
                     function: {
                         name: tool.name,
                         description: tool.description,
                         parameters: {
                             type: parameters.type,
-                            properties: parameters.propertiesm,
+                            properties: parameters.properties,
                             required: parameters.required,
                             additionalProperties: parameters.additionalProperties
                         }
                     }
                 }
+                console.log('tranformed_tools output', output)
+                return output
+            } else {
+                return tool
             }
         })
         console.log('tranformed_tools', JSON.stringify(tranformed_tools))

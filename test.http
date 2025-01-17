@@ -1,0 +1,103 @@
+### Model List
+GET https://litellm.suanovalab.duckdns.org/models
+Accept: application/json
+Authorization: Bearer sk-Hg_wDNIE36Kg7kD9HKUoYg
+
+### Model Information
+GET https://litellm.suanovalab.duckdns.org/model/info
+Accept: application/json
+Authorization: Bearer sk-Hg_wDNIE36Kg7kD9HKUoYg
+
+### Chat Completion for phi-4
+POST https://litellm.suanovalab.duckdns.org/engines/phi-4/chat/completions
+Content-Type: application/json
+Authorization: Bearer sk-Hg_wDNIE36Kg7kD9HKUoYg
+
+{
+    "model": "phi-4",
+    "messages": [
+        {
+            "role": "user",
+            "content": "Hello!"
+        }
+    ]
+}
+
+### Chat Completion for Qwen2-VL-7B-Instruct
+POST https://litellm.suanovalab.duckdns.org/engines/Qwen2-VL-7B-Instruct/chat/completions
+Content-Type: application/json
+Authorization: Bearer sk-Hg_wDNIE36Kg7kD9HKUoYg
+
+{
+    "model": "Qwen2-VL-7B-Instruct",
+    "messages": [
+        {
+            "role": "user",
+            "content": "Hello!"
+        }
+    ]
+}
+
+### Chat Completion for QwQ-32B-Preview
+POST https://litellm.suanovalab.duckdns.org/engines/QwQ-32B-Preview/chat/completions
+Content-Type: application/json
+Authorization: Bearer sk-Hg_wDNIE36Kg7kD9HKUoYg
+
+{
+    "model": "QwQ-32B-Preview",
+    "messages": [
+        {
+            "role": "user",
+            "content": "Hello!"
+        }
+    ]
+}
+
+### Chat Completion for Llama-3.2-11B-Vision-Instruct
+POST https://litellm.suanovalab.duckdns.org/engines/Llama-3.2-11B-Vision-Instruct/chat/completions
+Content-Type: application/json
+Authorization: Bearer sk-Hg_wDNIE36Kg7kD9HKUoYg
+
+{
+    "model": "Llama-3.2-11B-Vision-Instruct",
+    "messages": [
+        {
+            "role": "user",
+            "content": "Hello!"
+        }
+    ]
+}
+
+### Chat Completion for Qwen2.5-32B-Instruct
+POST https://litellm.suanovalab.duckdns.org/engines/Qwen2.5-32B-Instruct/chat/completions
+Content-Type: application/json
+Authorization: Bearer sk-Hg_wDNIE36Kg7kD9HKUoYg
+
+{
+    "model": "Qwen2.5-32B-Instruct",
+    "messages": [
+        {
+            "role": "user",
+            "content": "Get me the hong kong weather!"
+        }
+    ],
+    "tools" : [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_weather",
+                "description": "Get the current weather for a city.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "city": {
+                            "type": "string",
+                            "description": "Name of the city to get the weather for."
+                        }
+                    },
+                    "required": ["city"]
+                }
+            }
+        }
+    ]
+}

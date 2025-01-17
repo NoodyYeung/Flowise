@@ -53,11 +53,15 @@ export class SuenovaApiClient {
     /**
      * List available models from the Suenova API.
      * Adjust the endpoint if necessary.
+     *
+     *
      */
     async listModels(): Promise<string[]> {
         try {
             const response: AxiosResponse<any> = await this.axiosInstance.get('/models')
-            return response.data.models || ['Qwen2.5-7B-Instruct']
+            const models = response.data.data.map((model: any) => model.id)
+
+            return models || ['Qwen2.5-32B-Instruct']
         } catch (error: any) {
             console.error('Error fetching models:', error.message)
             return []
@@ -105,11 +109,15 @@ export class SuenovaApiClient {
             temperature: 0.7
             // Include other parameters as needed
         }
+        var inTools = []
+        for (var i = 0; i < this.tools.length; i++) {
+            if (this.tools[i]) inTools.push(this.tools[i])
+        }
         const sanitizedPayload = {
             model: payload.model,
             messages: payload.messages,
             temperature: payload.temperature || 0.7,
-            tools: this.tools
+            tools: inTools
         }
 
         console.log('SuenovaApiClient.ts: 105', body)
@@ -119,7 +127,7 @@ export class SuenovaApiClient {
         //     .then((response) => response.json())
         //     .then((body) => body.messages.map((message: any) => new AIMessage(message.content)))
 
-        return this.axiosInstance.post('/qwen27b/v1/chat/completions', sanitizedPayload).then((response) => {
+        return this.axiosInstance.post(`/engines/${payload.model}/chat/completions`, sanitizedPayload).then((response) => {
             console.log('SuenovaApiClient.ts: 123', response)
             console.log('SuenovaApiClient.ts: 124', response.data.choices)
             return response.data.choices.map(
@@ -138,16 +146,20 @@ export class SuenovaApiClient {
      * @param params - Parameters for text generation.
      */
     async generateText(params: GenerateTextParams): Promise<SuenovaApiResponse> {
+        var inTools = []
+        for (var i = 0; i < this.tools.length; i++) {
+            if (this.tools[i]) inTools.push(this.tools[i])
+        }
         const payload = {
             model: this.deploymentName,
             messages: [{ role: 'user', content: params.prompt }],
             temperature: params.temperature ?? 0.7,
-            tools: this.tools
+            tools: inTools
             // Include other parameters as needed
         }
         console.log('SuenovaApiClient.ts: 126', payload)
         try {
-            const response: AxiosResponse<any> = await this.axiosInstance.post('/qwen27b/v1/chat/completions', payload)
+            const response: AxiosResponse<any> = await this.axiosInstance.post(`/engines/${this.deploymentName}/chat/completions`, payload)
             return { success: true, content: response.data }
         } catch (error: any) {
             if (error.code === 'ECONNABORTED') {

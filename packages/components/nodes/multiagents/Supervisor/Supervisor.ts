@@ -194,7 +194,7 @@ class Supervisor_MultiAgents implements INode {
                             }
                         }
                     })
-            } else if (llm instanceof ChatAnthropic) {
+            } else if (llm instanceof ChatAnthropic || llm instanceof SuenovaChatModel) {
                 // Force Anthropic to use tool : https://docs.anthropic.com/claude/docs/tool-use#forcing-tool-use
                 userPrompt = `Given the conversation above, who should act next? Or should we FINISH? Select one of: ${memberOptions.join(
                     ', '
@@ -213,7 +213,7 @@ class Supervisor_MultiAgents implements INode {
                 if ((llm as any).bindTools === undefined) {
                     throw new Error(`This agent only compatible with function calling models.`)
                 }
-
+                console.log('Supervisor.ts: 202 tools:', tool)
                 const modelWithTool = (llm as any).bindTools([tool])
 
                 const outputParser = new ToolCallingAgentOutputParser()
@@ -222,8 +222,18 @@ class Supervisor_MultiAgents implements INode {
                     .pipe(modelWithTool)
                     .pipe(outputParser)
                     .pipe((x) => {
+                        console.log('Supervisor.ts: 224 x:', x)
+
                         if (Array.isArray(x) && x.length) {
                             const toolAgentAction = x[0] as any
+                            if (llm instanceof SuenovaChatModel) {
+                                toolAgentAction.tool = toolAgentAction['messageLog'][0].tool_calls[0]['function']['name']
+                                toolAgentAction.toolInput = JSON.parse(
+                                    toolAgentAction['messageLog'][0].tool_calls[0]['function']['arguments']
+                                )
+                            }
+                            console.log('Supervisor.ts: 233 toolAgentAction:', toolAgentAction)
+
                             return {
                                 next: toolAgentAction.toolInput.next,
                                 instructions: toolAgentAction.toolInput.instructions,
@@ -243,7 +253,7 @@ class Supervisor_MultiAgents implements INode {
                             }
                         }
                     })
-            } else if (llm instanceof ChatOpenAI || llm instanceof SuenovaChatModel) {
+            } else if (llm instanceof ChatOpenAI) {
                 let prompt = ChatPromptTemplate.fromMessages([
                     ['system', systemPrompt],
                     new MessagesPlaceholder('messages'),
@@ -254,20 +264,23 @@ class Supervisor_MultiAgents implements INode {
                 const messages = await processImageMessage(1, llm, prompt, nodeData, options)
                 prompt = messages.prompt
                 multiModalMessageContent = messages.multiModalMessageContent
+                console.log('Supervisor.ts: 257 tools:', tool)
 
                 // Force OpenAI to use tool
-                const modelWithTool = llm.bind({
+                var modelWithTool = llm.bind({
                     tools: [tool],
                     tool_choice: { type: 'function', function: { name: routerToolName } },
                     signal: abortControllerSignal ? abortControllerSignal.signal : undefined
                 })
 
                 const outputParser = new ToolCallingAgentOutputParser()
+                console.log('Supervisor.ts: 270 modelWithTool:', modelWithTool)
 
                 supervisor = prompt
                     .pipe(modelWithTool)
                     .pipe(outputParser)
                     .pipe((x) => {
+                        console.log('Supervisor.ts: 270 x:', x)
                         if (Array.isArray(x) && x.length) {
                             const toolAgentAction = x[0] as any
                             return {

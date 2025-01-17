@@ -47,7 +47,7 @@ class Suenova implements INode {
                 name: 'modelName',
                 type: 'asyncOptions',
                 loadMethod: 'listModels',
-                default: 'Qwen2.5-7B-Instruct' // Default to your deployment name
+                default: 'Qwen2.5-32B-Instruct' // Default to your deployment name
             },
             {
                 label: 'Temperature',
@@ -118,7 +118,7 @@ class Suenova implements INode {
                 label: 'Base Path',
                 name: 'basePath',
                 type: 'string',
-                default: 'https://113.31.112.216:8001', // Your on-premise server
+                default: 'https://litellm.suanovalab.duckdns.org', // Your on-premise server
                 optional: false
             },
             {

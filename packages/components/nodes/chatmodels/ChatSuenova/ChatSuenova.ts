@@ -47,7 +47,7 @@ class ChatSuenova implements INode {
                 name: 'modelName',
                 type: 'asyncOptions',
                 loadMethod: 'listModels',
-                default: 'Qwen2.5-7B-Instruct' // Replace with your default chat model name
+                default: 'Qwen2.5-32B-Instruct' // Replace with your default chat model name
             },
             {
                 label: 'Temperature',
@@ -119,7 +119,7 @@ class ChatSuenova implements INode {
                 label: 'Base Path',
                 name: 'basePath',
                 type: 'string',
-                default: 'https://113.31.112.216:8001', // Replace with your Suenova server URL
+                default: 'https://litellm.suanovalab.duckdns.org', // Replace with your Suenova server URL
                 optional: false
             },
             {
