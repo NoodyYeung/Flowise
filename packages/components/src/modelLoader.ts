@@ -3,7 +3,7 @@ import axios from 'axios'
 import * as fs from 'fs'
 import * as path from 'path'
 
-// const MASTER_MODEL_LIST = '/usr/src/packages/components/models.json'
+const MASTER_MODEL_LIST = '/usr/src/packages/components/models.json'
 
 export enum MODEL_TYPE {
     CHAT = 'chat',
@@ -32,7 +32,7 @@ const isValidUrl = (urlString: string) => {
 }
 
 const getModelConfig = async (category: MODEL_TYPE, name: string) => {
-    var modelFile = process.env.MODEL_LIST_CONFIG_JSON
+    var modelFile = process.env.MODEL_LIST_CONFIG_JSON || MASTER_MODEL_LIST
     // check if running window
     if (process.platform === 'win32') {
         modelFile = '/d/Projects/Flowise/packages/components/models.json'
