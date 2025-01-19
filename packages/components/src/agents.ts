@@ -871,7 +871,10 @@ export type ToolsAgentStep = AgentStep & {
 }
 
 function parseAIMessageToToolAction(message: AIMessage): ToolsAgentAction[] | AgentFinish {
+    console.log('agent.ts 874 message: ', message)
+
     const stringifiedMessageContent = typeof message.content === 'string' ? message.content : JSON.stringify(message.content)
+
     let toolCalls: ToolCall[] = []
     if (message.tool_calls !== undefined && message.tool_calls.length > 0) {
         toolCalls = message.tool_calls

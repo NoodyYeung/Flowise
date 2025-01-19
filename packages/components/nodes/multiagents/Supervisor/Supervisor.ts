@@ -226,13 +226,16 @@ class Supervisor_MultiAgents implements INode {
 
                         if (Array.isArray(x) && x.length) {
                             const toolAgentAction = x[0] as any
-                            if (llm instanceof SuenovaChatModel) {
-                                toolAgentAction.tool = toolAgentAction['messageLog'][0].tool_calls[0]['function']['name']
-                                toolAgentAction.toolInput = JSON.parse(
-                                    toolAgentAction['messageLog'][0].tool_calls[0]['function']['arguments']
-                                )
-                            }
-                            console.log('Supervisor.ts: 233 toolAgentAction:', toolAgentAction)
+
+                            // Extra handling for SuenovaChat
+
+                            // if (llm instanceof SuenovaChatModel) {
+                            //     toolAgentAction.tool = toolAgentAction['messageLog'][0].tool_calls[0]['function']['name']
+                            //     toolAgentAction.toolInput = JSON.parse(
+                            //         toolAgentAction['messageLog'][0].tool_calls[0]['function']['arguments']
+                            //     )
+                            // }
+                            // console.log('Supervisor.ts: 233 toolAgentAction:', toolAgentAction)
 
                             return {
                                 next: toolAgentAction.toolInput.next,

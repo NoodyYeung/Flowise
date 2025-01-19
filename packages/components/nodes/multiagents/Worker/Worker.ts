@@ -200,43 +200,53 @@ async function createAgent(
         if (llm.bindTools === undefined) {
             throw new Error(`This agent only compatible with function calling models.`)
         }
+
+        console.log("Worker's tools: ", tools)
+        console.log('Worker.ts 205 workerInputVariablesValues:', workerInputVariablesValues)
         const modelWithTools = llm.bindTools(tools)
 
         let agent
+        try {
+            if (!workerInputVariablesValues || !Object.keys(workerInputVariablesValues).length) {
+                console.log('Worker.ts 211 ')
 
-        if (!workerInputVariablesValues || !Object.keys(workerInputVariablesValues).length) {
-            agent = RunnableSequence.from([
-                RunnablePassthrough.assign({
-                    //@ts-ignore
-                    agent_scratchpad: (input: { steps: ToolsAgentStep[] }) => formatToOpenAIToolMessages(input.steps)
-                }),
-                prompt,
-                modelWithTools,
-                new ToolCallingAgentOutputParser()
-            ])
-        } else {
-            agent = RunnableSequence.from([
-                RunnablePassthrough.assign({
-                    //@ts-ignore
-                    agent_scratchpad: (input: { steps: ToolsAgentStep[] }) => formatToOpenAIToolMessages(input.steps)
-                }),
-                RunnablePassthrough.assign(transformObjectPropertyToFunction(workerInputVariablesValues)),
-                prompt,
-                modelWithTools,
-                new ToolCallingAgentOutputParser()
-            ])
+                agent = RunnableSequence.from([
+                    RunnablePassthrough.assign({
+                        //@ts-ignore
+                        agent_scratchpad: (input: { steps: ToolsAgentStep[] }) => formatToOpenAIToolMessages(input.steps)
+                    }),
+                    prompt,
+                    modelWithTools,
+                    new ToolCallingAgentOutputParser()
+                ])
+            } else {
+                console.log('Worker.ts 223 workerInputVariablesValues:', workerInputVariablesValues)
+
+                agent = RunnableSequence.from([
+                    RunnablePassthrough.assign({
+                        //@ts-ignore
+                        agent_scratchpad: (input: { steps: ToolsAgentStep[] }) => formatToOpenAIToolMessages(input.steps)
+                    }),
+                    RunnablePassthrough.assign(transformObjectPropertyToFunction(workerInputVariablesValues)),
+                    prompt,
+                    modelWithTools,
+                    new ToolCallingAgentOutputParser()
+                ])
+            }
+
+            const executor = AgentExecutor.fromAgentAndTools({
+                agent,
+                tools,
+                sessionId: flowObj?.sessionId,
+                chatId: flowObj?.chatId,
+                input: flowObj?.input,
+                verbose: process.env.DEBUG === 'true' ? true : false,
+                maxIterations: maxIterations ? parseFloat(maxIterations) : undefined
+            })
+            return executor
+        } catch (error) {
+            throw new Error(`Worker.ts 252 error: ${error}`)
         }
-
-        const executor = AgentExecutor.fromAgentAndTools({
-            agent,
-            tools,
-            sessionId: flowObj?.sessionId,
-            chatId: flowObj?.chatId,
-            input: flowObj?.input,
-            verbose: process.env.DEBUG === 'true' ? true : false,
-            maxIterations: maxIterations ? parseFloat(maxIterations) : undefined
-        })
-        return executor
     } else {
         const combinedPrompt =
             systemPrompt +

@@ -17,6 +17,7 @@
         "start": "run-script-os",
         "start:windows": "cd packages/server/bin && run start",
         "start:default": "cd packages/server/bin && ./run start",
+        "start-debug": "cd packages/server/bin && node --inspect-brk=9229 ./run start",
         "clean": "pnpm --filter \"./packages/**\" clean",
         "nuke": "pnpm --filter \"./packages/**\" nuke && rimraf node_modules .turbo",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",

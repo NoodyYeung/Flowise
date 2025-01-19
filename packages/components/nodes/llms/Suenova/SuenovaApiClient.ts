@@ -78,7 +78,7 @@ export class SuenovaApiClient {
     }
 
     getContentFromMessage(message: BaseMessage): string {
-        return message.content.toString()
+        return message.content?.toString()
     }
 
     buildBody(messages: BaseMessage[]): any {
@@ -126,18 +126,50 @@ export class SuenovaApiClient {
         // return await fetch(`${this.config.baseUrl}/v1/chat/completions`, requestOptions)
         //     .then((response) => response.json())
         //     .then((body) => body.messages.map((message: any) => new AIMessage(message.content)))
+        function parseSuenovaToolCalls(toolCalls: any) {
+            if (!toolCalls) return []
+            return toolCalls.map((toolCall: any) => {
+                console.log('SuenovaApiClient.ts: 132 toolCall', toolCall)
+                var _func = toolCall.function
+                var _func_args = JSON.parse(_func.arguments)
+                var _func_name = _func.name
+                var _type = toolCall.type
+
+                return {
+                    name: _func_name,
+                    args: _func_args,
+                    id: toolCall.id,
+                    type: _type
+                }
+            })
+        }
 
         return this.axiosInstance.post(`/engines/${payload.model}/chat/completions`, sanitizedPayload).then((response) => {
             console.log('SuenovaApiClient.ts: 123', response)
             console.log('SuenovaApiClient.ts: 124', response.data.choices)
-            return response.data.choices.map(
-                (choice: any) =>
-                    new AIMessage({
-                        content: choice.message.content,
-                        tool_calls: choice.message.tool_calls,
-                        name: choice.message.name
-                    })
-            )
+            return response.data.choices.map((choice: any) => {
+                var _content = choice.message.content
+                try {
+                    if (choice.message.content == null) {
+                        if (choice.message.tool_calls != null && choice.message.tool_calls.length > 0) {
+                            const _tools = parseSuenovaToolCalls(choice.message.tool_calls)[0]
+
+                            if (_tools.name == 'route') {
+                                _content = _tools.args.instructions
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.log('SuenovaApiClient.ts: 142', e)
+                }
+                console.log('SuenovaApiClient.ts: 144', _content)
+
+                return new AIMessage({
+                    content: _content,
+                    tool_calls: parseSuenovaToolCalls(choice.message.tool_calls),
+                    name: choice.message.name
+                })
+            })
         })
     }
 
